@@ -39,6 +39,14 @@ app.use("/api/auth", auth);
 app.use("/api/user", user);
 app.use("/api/briefing", briefing);
 
+app.get("/", (req, res) => {
+  res.json({
+    ok: true,
+    message: "Morning Briefing API",
+    health: "/health",
+  });
+});
+
 app.get("/health", (req, res) => {
   res.json({ ok: true, time: new Date() });
 });
