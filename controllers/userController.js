@@ -69,3 +69,40 @@ exports.deleteAccount = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getSubscriptionStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("subscription");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const subscription = user.subscription || {};
+    const now = Date.now();
+    const trialEndsAt = subscription.trialEndsAt ? new Date(subscription.trialEndsAt) : null;
+    const currentPeriodEnd = subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null;
+
+    let trialDaysRemaining = 0;
+    if (subscription.plan === "trial" && trialEndsAt) {
+      const diff = trialEndsAt.getTime() - now;
+      trialDaysRemaining = diff > 0 ? Math.ceil(diff / (24 * 60 * 60 * 1000)) : 0;
+    }
+
+    const trialActive = subscription.plan === "trial" && trialEndsAt && now <= trialEndsAt.getTime();
+    const paidActive =
+      (subscription.plan === "monthly" || subscription.plan === "yearly") &&
+      subscription.status === "active" &&
+      currentPeriodEnd &&
+      now <= currentPeriodEnd.getTime();
+
+    return res.json({
+      plan: subscription.plan,
+      status: subscription.status,
+      trialEndsAt: subscription.trialEndsAt,
+      trialDaysRemaining,
+      currentPeriodEnd: subscription.currentPeriodEnd,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      isActive: Boolean(trialActive || paidActive),
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};

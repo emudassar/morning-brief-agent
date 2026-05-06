@@ -25,6 +25,18 @@ const userSchema = new mongoose.Schema(
       refreshToken: { type: String, default: null },
       expiresAt: { type: Date, default: null },
     },
+    subscription: {
+      plan: { type: String, enum: ["free", "trial", "monthly", "yearly"], default: "trial" },
+      status: { type: String, enum: ["active", "expired", "cancelled", "past_due"], default: "active" },
+      trialStartedAt: { type: Date, default: Date.now },
+      trialEndsAt: { type: Date, default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
+      currentPeriodStart: { type: Date, default: null },
+      currentPeriodEnd: { type: Date, default: null },
+      lemonSqueezyCustomerId: { type: String, default: null },
+      lemonSqueezySubscriptionId: { type: String, default: null },
+      lemonSqueezyOrderId: { type: String, default: null },
+      cancelAtPeriodEnd: { type: Boolean, default: false },
+    },
     lastBriefingAt: { type: Date, default: null },
   },
   { timestamps: true }

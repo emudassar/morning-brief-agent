@@ -9,6 +9,7 @@ const {
   updateTimezone,
   toggleActive,
   deleteAccount,
+  getSubscriptionStatus,
 } = require("../controllers/userController");
 
 router.get("/me", protect, getMe);
@@ -17,5 +18,6 @@ router.put("/telegram", protect, saveTelegramId);
 router.put("/timezone", protect, updateTimezone);
 router.put("/toggle-active", protect, toggleActive);
 router.delete("/me", protect, deleteAccount);
+router.get("/subscription", protect, getSubscriptionStatus);
 
 module.exports = router;
